@@ -3,8 +3,9 @@ import csv
 from settings import *
 import sys
 from sprites import *
-from groups import AllSprites
 
+from groups import AllSprites
+from player import Player
 
 class Game:
     def __init__(self):
@@ -13,8 +14,9 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.all_sprites = AllSprites()
-        self.setup_map()
 
+        self.collision_sprites = pygame.sprite.Group()
+        self.setup_map()
     def setup_map(self):
         with open('ExportedData.csv', mode='r') as file:
             csv_reader = csv.reader(file)
@@ -22,10 +24,14 @@ class Game:
             for row in csv_reader:
                 map.append(row)
         print(map)
+        ppos = []
         for i in range(len(map)):
             for j in range(len(map[i])):
-                if (map[i][j] == '0'):
+                if (map[i][j] == 'f'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_0.png", self.all_sprites)
+
+                if (map[i][j] == '0'):
+                    CollisionSprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_0.png",self.collision_sprites)
                 if (map[i][j] == 'b'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_3.png", self.all_sprites)
                 if (map[i][j] == '.'):
@@ -36,6 +42,17 @@ class Game:
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_2.png", self.all_sprites)
                 if (map[i][j] == 's'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_4.png", self.all_sprites)
+                if (map[i][j] == 'p'):
+                    ppos = (j * TILE_SIZE, i * TILE_SIZE)
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_5.png", self.all_sprites)
+
+        self.player = Player(ppos,self.all_sprites,self.collision_sprites)
+        for i in range(len(map)):
+            for j in range(len(map[i])):
+                if (map[i][j] == 'f'):
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_0.png", self.all_sprites)
+
+
 
     def run(self):
         while self.running:
@@ -45,7 +62,7 @@ class Game:
                     self.running = False
 
             self.display_surface.fill('black')
-            self.all_sprites.draw([180,500])
+            self.all_sprites.draw(self.player.rect.center)
             self.all_sprites.update(delta)
             pygame.display.update()
             # self.clock.tick(60)

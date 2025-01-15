@@ -8,7 +8,7 @@ class Sprite(pygame.sprite.Sprite):
 
 
 class CollisionSprite(pygame.sprite.Sprite):
-    def __init__(self,position,surface,groups):
+    def __init__(self,position,file_path,groups):
         super().__init__(groups)
-        self.image = surface
+        self.image = pygame.image.load(file_path).convert_alpha()
         self.rect = self.image.get_rect(topleft = position)
