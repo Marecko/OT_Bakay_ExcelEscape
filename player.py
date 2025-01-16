@@ -19,6 +19,9 @@ class Player(pygame.sprite.Sprite):
         self.color = "red"
         self.star_pos = position
         self.groups = groups
+        self.collected_stars = 0
+
+
     def load_images(self):
         for state in self.frames.keys():
             for folder_path, sub_folders, file_names in walk(join('assets','player',state)):
@@ -54,19 +57,40 @@ class Player(pygame.sprite.Sprite):
                         self.hitbox_rect.right = sprite.rect.left
                     if self.direction.x < 0:
                         self.hitbox_rect.left = sprite.rect.right
+        for sprite in self.groups:
+            if sprite.rect.colliderect(self.hitbox_rect) and sprite != self:
+                #print(sprite.color,self.color)
+                if(sprite.color == self.color):
+                    continue
+                elif((self.color == 'red' and sprite.color == "green")
+                    or (self.color == 'green' and sprite.color == "blue")
+                    or (self.color == 'blue' and sprite.color == "red")):
 
-
-
-
-
-
-
-
-
-
-
-
-
+                    if direction == 'horizontal':
+                        if self.direction.x > 0:
+                            self.hitbox_rect.right = sprite.rect.left
+                        if self.direction.x < 0:
+                            self.hitbox_rect.left = sprite.rect.right
+                    else:
+                        if (self.gravity < 0):
+                            self.hitbox_rect.top = sprite.rect.bottom
+                        else:
+                            self.hitbox_rect.bottom = sprite.rect.top
+                            self.standing = True
+                elif((self.color == 'red' and sprite.color == "blue")
+                    or(self.color == 'blue' and sprite.color == "green")
+                    or(self.color == 'green' and sprite.color == "red")):
+                    self.kill()
+                elif(sprite.color == "yellow"):
+                    sprite.color = "white"
+                    sprite.image = pygame.image.load("assets/farby/sprite_5.png").convert_alpha()
+                    self.collected_stars += 1
+                elif (sprite.color == "spikeUPnon"):
+                    if direction == 'horizontal':
+                        if self.direction.x > 0:
+                            self.hitbox_rect.right = sprite.rect.left
+                        if self.direction.x < 0:
+                            self.hitbox_rect.left = sprite.rect.right
 
 
 
@@ -88,7 +112,7 @@ class Player(pygame.sprite.Sprite):
                     self.standing = True
         for sprite in self.groups:
             if sprite.rect.colliderect(self.hitbox_rect) and sprite != self:
-                print(sprite.color,self.color)
+                ##print(sprite.color,self.color)
                 if(sprite.color == self.color):
                     continue
                 elif((self.color == 'red' and sprite.color == "green")
@@ -99,11 +123,10 @@ class Player(pygame.sprite.Sprite):
                     else:
                         self.hitbox_rect.bottom = sprite.rect.top
                         self.standing = True
-                elif((self.color == 'red' and sprite.color == "blue")
-                    or(self.color == 'blue' and sprite.color == "green")
-                    or(self.color == 'green' and sprite.color == "red")):
-                    self.kill()
-
+                elif(sprite.color == "spikeUPnon"):
+                    if (self.gravity > 0):
+                        self.hitbox_rect.bottom = sprite.rect.top
+                        self.kill()
     def kill(self):
         self.speed = 500
         self.gravity = 250
