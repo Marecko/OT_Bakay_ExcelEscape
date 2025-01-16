@@ -65,6 +65,8 @@ class Game:
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spike_3.png", self.all_sprites, "spikeRIGHTnon")
                 elif (map[i][j] == '8'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spike_1.png", self.all_sprites, "spikeDOWNnon")
+                elif (map[i][j] == "c"):
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spike_0.png", self.all_sprites, "checkpoint")
 
         self.player = Player(ppos,self.all_sprites,self.collision_sprites)
 
@@ -147,6 +149,7 @@ class Game:
             self.do_the_text_and_stuff()
 
             pygame.display.update()
+
             # self.clock.tick(60)
             if(self.player.collected_stars == self.number_of_stars and not self.did_animation):
                 self.door.color = "open"
@@ -156,11 +159,8 @@ class Game:
 
 
             self.end_level()
-
         pygame.quit()
         sys.exit()
-
-
 
 
 

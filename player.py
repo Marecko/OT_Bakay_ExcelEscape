@@ -152,7 +152,8 @@ class Player(pygame.sprite.Sprite):
                     else:
                         self.hitbox_rect.bottom = sprite.rect.top
                         self.standing = True
-
+                elif(sprite.color == "checkpoint"):
+                    self.star_pos = sprite.rect.topleft
 
     def kill(self):
         self.deaths += 1
