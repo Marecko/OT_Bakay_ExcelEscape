@@ -85,18 +85,29 @@ class Player(pygame.sprite.Sprite):
                     sprite.color = "white"
                     sprite.image = pygame.image.load("assets/farby/sprite_5.png").convert_alpha()
                     self.collected_stars += 1
-                elif (sprite.color == "spikeUPnon"):
-                    if direction == 'horizontal':
-                        if self.direction.x > 0:
-                            self.hitbox_rect.right = sprite.rect.left
-                        if self.direction.x < 0:
-                            self.hitbox_rect.left = sprite.rect.right
 
 
 
+                elif (sprite.color in ["spikeUPnon","spikeDOWNnon","spikeLEFTnon","spikeRIGHTnon"]):
+                    self.spike_handling(direction,sprite)
 
 
 
+    def spike_handling(self,direction,sprite):
+        if(sprite.color in ["spikeUPnon","spikeDOWNnon"]):
+            if direction == 'horizontal':
+                if self.direction.x > 0:
+                    self.hitbox_rect.right = sprite.rect.left
+                if self.direction.x < 0:
+                    self.hitbox_rect.left = sprite.rect.right
+        elif(sprite.color == "spikeLEFTnon"):
+            if direction == 'horizontal':
+                if self.direction.x < 0:
+                    self.kill()
+        elif(sprite.color == "spikeRIGHTnon"):
+            if direction == 'horizontal':
+                if self.direction.x > 0:
+                    self.kill()
     def drop(self,delta):
 
         if(self.gravity < 250):
@@ -110,6 +121,7 @@ class Player(pygame.sprite.Sprite):
                 else:
                     self.hitbox_rect.bottom = sprite.rect.top
                     self.standing = True
+
         for sprite in self.groups:
             if sprite.rect.colliderect(self.hitbox_rect) and sprite != self:
                 ##print(sprite.color,self.color)
@@ -127,6 +139,18 @@ class Player(pygame.sprite.Sprite):
                     if (self.gravity > 0):
                         self.hitbox_rect.bottom = sprite.rect.top
                         self.kill()
+                elif(sprite.color == "spikeDOWNnon"):
+                    if (self.gravity < 0):
+                        self.kill()
+
+                elif(sprite.color in ["spikeLEFTnon","spikeRIGHTnon"]):
+                    if (self.gravity < 0):
+                        self.hitbox_rect.top = sprite.rect.bottom
+                    else:
+                        self.hitbox_rect.bottom = sprite.rect.top
+                        self.standing = True
+
+
     def kill(self):
         self.speed = 500
         self.gravity = 250

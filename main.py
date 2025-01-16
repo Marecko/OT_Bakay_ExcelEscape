@@ -24,7 +24,7 @@ class Game:
         self.color_sprites = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
         self.number_of_stars = 0
-        mapy = ["ExportedData3.csv",'ExportedData2.csv']
+        mapy = ["ExportedDataSPIKE.csv",'ExportedData2.csv']
         with open(mapy[self.lvl], mode='r') as file:
             csv_reader = csv.reader(file)
             map = []
@@ -34,29 +34,33 @@ class Game:
         ppos = []
         for i in range(len(map)):
             for j in range(len(map[i])):
-
-
                 if (map[i][j] == '0'):
                     CollisionSprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_0.png",self.collision_sprites)
-                if (map[i][j] == 'b'):
+                elif (map[i][j] == 'b'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_3.png", self.all_sprites,"blue")
-                if (map[i][j] == '.'):
+                elif (map[i][j] == '.'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_5.png", self.all_sprites,"white")
-                if(map[i][j] == 'r'):
+                elif(map[i][j] == 'r'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_1.png", self.all_sprites,"red")
-                if (map[i][j] == 'g'):
+                elif (map[i][j] == 'g'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_2.png", self.all_sprites,"green")
-                if (map[i][j] == 's'):
+                elif (map[i][j] == 's'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_4.png", self.all_sprites,"yellow")
                     self.number_of_stars +=1
-                if (map[i][j] == 'p'):
+                elif (map[i][j] == 'p'):
                     ppos = (j * TILE_SIZE, i * TILE_SIZE)
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_5.png", self.all_sprites,"white")
-                if (map[i][j] == 'd'):
+                elif (map[i][j] == 'd'):
                     self.door = Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_1.png", self.all_sprites, "closed")
-                if (map[i][j] == '2'):
-                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_1.png", self.all_sprites, "spikeUPnon")
-                    
+                elif (map[i][j] == '2'):
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spike_0.png", self.all_sprites, "spikeUPnon")
+                elif (map[i][j] == '4'):
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spike_2.png", self.all_sprites, "spikeLEFTnon")
+                elif (map[i][j] == '6'):
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spike_3.png", self.all_sprites, "spikeRIGHTnon")
+                elif (map[i][j] == '8'):
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spike_1.png", self.all_sprites, "spikeDOWNnon")
+
         self.player = Player(ppos,self.all_sprites,self.collision_sprites)
         for i in range(len(map)):
             for j in range(len(map[i])):
