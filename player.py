@@ -20,6 +20,9 @@ class Player(pygame.sprite.Sprite):
         self.star_pos = position
         self.groups = groups
         self.collected_stars = 0
+        self.controls = True
+        self.deaths = 0
+
 
 
     def load_images(self):
@@ -152,6 +155,7 @@ class Player(pygame.sprite.Sprite):
 
 
     def kill(self):
+        self.deaths += 1
         self.speed = 500
         self.gravity = 250
         self.standing = False
@@ -189,8 +193,8 @@ class Player(pygame.sprite.Sprite):
 
     def update(self, delta):
 
-
-        self.input()
+        if(self.controls):
+            self.input()
         self.drop(delta)
         self.move(delta)
         print(self.momentum)
