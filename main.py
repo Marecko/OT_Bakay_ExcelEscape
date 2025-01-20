@@ -20,35 +20,37 @@ class Game:
         self.font = pygame.font.Font(None, 36)
         self.all_deaths = 0
         self.did_animation = False
-
-
+        self.animate_cp = False
+        self.cp = -1
 
     def setup_map(self):
         self.all_sprites = AllSprites()
         self.color_sprites = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
         self.number_of_stars = 0
-
-        mapy = ["ExportedDataSPIKE.csv",'ExportedData2.csv']
+        self.checkpoints = []
+        mapy = ["assets/levely/MAPA_LVL_1.csv"]
         with open(mapy[self.lvl], mode='r') as file:
             csv_reader = csv.reader(file)
             map = []
             for row in csv_reader:
                 map.append(row)
-        print(map)
+
         ppos = []
         for i in range(len(map)):
             for j in range(len(map[i])):
                 if (map[i][j] == '0'):
                     CollisionSprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_0.png",self.collision_sprites)
+                elif (map[i][j] == 'n'):
+                    CollisionSprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/zem_0.png", self.collision_sprites)
                 elif (map[i][j] == 'b'):
-                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_3.png", self.all_sprites,"blue")
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/blue.png", self.all_sprites,"blue")
                 elif (map[i][j] == '.'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_5.png", self.all_sprites,"white")
                 elif(map[i][j] == 'r'):
-                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_1.png", self.all_sprites,"red")
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/red.png", self.all_sprites,"red")
                 elif (map[i][j] == 'g'):
-                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_2.png", self.all_sprites,"green")
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/green.png", self.all_sprites,"green")
                 elif (map[i][j] == 's'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_4.png", self.all_sprites,"yellow")
                     self.number_of_stars +=1
@@ -56,24 +58,28 @@ class Game:
                     ppos = (j * TILE_SIZE, i * TILE_SIZE)
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_5.png", self.all_sprites,"white")
                 elif (map[i][j] == 'd'):
-                    self.door = Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_1.png", self.all_sprites, "closed")
+                    self.door = Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/dvere/dvere_0.png", self.all_sprites, "closed")
                 elif (map[i][j] == '2'):
-                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spike_0.png", self.all_sprites, "spikeUPnon")
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spikes/pichlac_0.png", self.all_sprites, "spikeUPnon")
                 elif (map[i][j] == '4'):
-                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spike_2.png", self.all_sprites, "spikeLEFTnon")
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spikes/pichlac_1.png", self.all_sprites, "spikeLEFTnon")
                 elif (map[i][j] == '6'):
-                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spike_3.png", self.all_sprites, "spikeRIGHTnon")
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spikes/pichlac_3.png", self.all_sprites, "spikeRIGHTnon")
                 elif (map[i][j] == '8'):
-                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spike_1.png", self.all_sprites, "spikeDOWNnon")
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spikes/pichlac_2.png", self.all_sprites, "spikeDOWNnon")
                 elif (map[i][j] == "c"):
-                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spike_0.png", self.all_sprites, "checkpoint")
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_5.png", self.all_sprites, "white")
+                    self.checkpoints.append(Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/checkpoint/checkpoint_0.png", self.all_sprites, "checkpoint"))
 
+        self.player_start_pos = ppos
         self.player = Player(ppos,self.all_sprites,self.collision_sprites)
 
         for i in range(len(map)):
             for j in range(len(map[i])):
                 if (map[i][j] == 'f'):
-                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_0.png", self.all_sprites,"false")
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/fake_down.png", self.all_sprites,"false")
+                if(map[i][j] == 'n'):
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/fake_top.png", self.all_sprites, "false")
 
     def animate_all_door(self,delta):
         if (self.stop > 3000):
@@ -94,12 +100,12 @@ class Game:
             self.player.controls = True
     def animate_door(self):
         self.all_sprites.draw(self.door.rect.center)
-        if(self.stop < 2000):
-            self.door.image = pygame.image.load("assets/farby/sprite_2.png")
+        if(self.stop < 2100):
+            self.door.image = pygame.image.load("assets/dvere/dvere_2.png")
         elif(self.stop < 2500):
-            self.door.image = pygame.image.load("assets/farby/sprite_3.png")
+            self.door.image = pygame.image.load("assets/dvere/dvere_1.png")
         elif(self.stop < 3000):
-            self.door.image = pygame.image.load("assets/farby/sprite_4.png")
+            self.door.image = pygame.image.load("assets/dvere/dvere_0.png")
 
 
 
@@ -133,6 +139,20 @@ class Game:
         self.display_surface.blit(star_surface, star_rect)
         self.display_surface.blit(image_surface, image_rect)
 
+    def animate_checkpoint(self,delta,cp):
+        self.stop -= delta * 1000
+        if (self.stop < 500):
+
+            self.animate_cp = False
+            self.checkpoints[cp].image = pygame.image.load("assets/checkpoint/checkpoint_3.png")
+        elif (self.stop < 1000):
+
+            self.checkpoints[cp].image = pygame.image.load("assets/checkpoint/checkpoint_2.png")
+        elif (self.stop < 1500):
+
+            self.checkpoints[cp].image = pygame.image.load("assets/checkpoint/checkpoint_1.png")
+
+
     def run(self):
         while self.running:
             delta = self.clock.tick() / 1000
@@ -147,6 +167,19 @@ class Game:
             else:
                 self.animate_all_door(delta)
             self.do_the_text_and_stuff()
+
+            if(self.player_start_pos != self.player.star_pos):
+                self.player_start_pos = self.player.star_pos
+                for i in range(len(self.checkpoints)):
+                    if(self.checkpoints[i].rect.topleft == self.player_start_pos):
+                        self.stop = 2000
+                        self.cp = i
+                        self.animate_cp = True
+                        self.animate_checkpoint(delta,self.cp)
+            if(self.animate_cp):
+                self.animate_checkpoint(delta, self.cp)
+
+
 
             pygame.display.update()
 
@@ -181,7 +214,7 @@ class Game:
 
 
 if __name__ == '__main__':
-    print("fuck")
+
     game = Game()
     game.run()
 

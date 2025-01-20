@@ -7,9 +7,10 @@ class Player(pygame.sprite.Sprite):
         self.frames = {'left': [], 'right': [], 'up': [], 'down': []}
         ##self.load_images()
         ##self.state, self.frame_index = 'down', 0
-        self.image = pygame.image.load("assets/farby/sprite_1.png").convert_alpha()
+        self.image = pygame.image.load("assets/panacik/panacikred_0.png").convert_alpha()
         self.rect = self.image.get_frect(center = position)
         self.hitbox_rect = self.rect
+        print(self.rect)
         self.direction = pygame.Vector2()
         self.speed = 500
         self.collision_sprites = collision_sprites
@@ -62,7 +63,7 @@ class Player(pygame.sprite.Sprite):
                         self.hitbox_rect.left = sprite.rect.right
         for sprite in self.groups:
             if sprite.rect.colliderect(self.hitbox_rect) and sprite != self:
-                #print(sprite.color,self.color)
+
                 if(sprite.color == self.color):
                     continue
                 elif((self.color == 'red' and sprite.color == "green")
@@ -127,7 +128,7 @@ class Player(pygame.sprite.Sprite):
 
         for sprite in self.groups:
             if sprite.rect.colliderect(self.hitbox_rect) and sprite != self:
-                ##print(sprite.color,self.color)
+
                 if(sprite.color == self.color):
                     continue
                 elif((self.color == 'red' and sprite.color == "green")
@@ -180,15 +181,15 @@ class Player(pygame.sprite.Sprite):
         self.direction = self.direction.normalize() if self.direction else self.direction
         if(keys[pygame.K_1]):
             self.color = "red"
-            self.image = pygame.image.load("assets/farby/sprite_1.png").convert_alpha()
+            self.image = pygame.image.load("assets/panacik/panacikred_0.png").convert_alpha()
             self.standing = False
         if(keys[pygame.K_2]):
             self.color = "green"
-            self.image = pygame.image.load("assets/farby/sprite_2.png").convert_alpha()
+            self.image = pygame.image.load("assets/panacik/panacikgreen_0.png").convert_alpha()
             self.standing = False
         if(keys[pygame.K_3]):
             self.color = "blue"
-            self.image = pygame.image.load("assets/farby/sprite_3.png").convert_alpha()
+            self.image = pygame.image.load("assets/panacik/panacikblue_0.png").convert_alpha()
             self.standing = False
 
 
@@ -198,7 +199,8 @@ class Player(pygame.sprite.Sprite):
             self.input()
         self.drop(delta)
         self.move(delta)
-        print(self.momentum)
+
+
         if(self.momentum > 0):
             self.momentum -= 1
 
