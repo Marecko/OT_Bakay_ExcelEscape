@@ -1,0 +1,35 @@
+Private Sub Worksheet_Change(ByVal Target As Range)
+    Dim Cell As Range
+    Dim InputChar As String
+    
+    If Not Intersect(Target, Me.UsedRange) Is Nothing Then
+        Application.EnableEvents = False
+        For Each Cell In Target
+            If Len(Cell.Value) = 0 Then
+                ' Clear color if the cell is empty
+                Cell.Interior.ColorIndex = xlNone
+            Else
+                InputChar = LCase(Cell.Value)
+                Select Case InputChar
+                    Case "0": Cell.Interior.Color = RGB(0, 0, 0)       ' Black
+                    Case "n": Cell.Interior.Color = RGB(128, 128, 128)       ' Black
+                    Case ".": Cell.Interior.Color = RGB(255, 255, 255) ' White
+                    Case "b": Cell.Interior.Color = RGB(0, 0, 255)       ' Black
+                    Case "r": Cell.Interior.Color = RGB(255, 0, 0)     ' Red
+                    Case "g": Cell.Interior.Color = RGB(0, 255, 0)     ' Green
+                    Case "p": Cell.Interior.Color = RGB(128, 0, 128)   ' Purple
+                    Case "s": Cell.Interior.Color = RGB(255, 255, 0)   ' Yellow
+                    Case "d": Cell.Interior.Color = RGB(255, 0, 255)   ' Magenta
+                    Case "f": Cell.Interior.Color = RGB(211, 211, 211) ' Light Gray
+                    Case "t": Cell.Interior.Color = RGB(200, 42, 24) ' Light Gray
+                    Case "8", "4", "6", "2": Cell.Interior.Color = RGB(255, 165, 0) ' Orange
+                    Case Else: Cell.Interior.ColorIndex = xlNone       ' Clear color
+                End Select
+            End If
+        Next Cell
+        Application.EnableEvents = True
+    End If
+End Sub
+
+
+

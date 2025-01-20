@@ -1,0 +1,34 @@
+Sub ExportUsedRangeToCSV()
+    Dim UsedRangeData As Range
+    Dim FilePath As String
+    Dim CSVData As String
+    Dim Row As Range
+    Dim Cell As Range
+
+    ' Set the used range of the active sheet
+    Set UsedRangeData = ActiveSheet.UsedRange
+    
+    ' Define the file path and name
+    FilePath = Application.GetSaveAsFilename("MAPA_LVL_2.csv", "CSV File (*.csv), *.csv")
+    
+    ' Exit if the user cancels the save dialog
+    If FilePath = "False" Then Exit Sub
+    
+    ' Build the CSV string
+    For Each Row In UsedRangeData.Rows
+        For Each Cell In Row.Cells
+            CSVData = CSVData & Cell.Value & ","
+        Next Cell
+        ' Remove trailing comma and add a new line
+        CSVData = Left(CSVData, Len(CSVData) - 1) & vbNewLine
+    Next Row
+    
+    ' Write the data to the file
+    Dim FileNum As Integer
+    FileNum = FreeFile
+    Open FilePath For Output As #FileNum
+    Print #FileNum, CSVData
+    Close #FileNum
+    
+    MsgBox "Export complete: " & FilePath, vbInformation
+End Sub
