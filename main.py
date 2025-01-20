@@ -1,4 +1,5 @@
 import csv
+from importlib.util import source_hash
 
 from settings import *
 import sys
@@ -14,7 +15,8 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.lvl = 0
-        self.setup_map()
+
+
         self.stop = -1
         self.help = 0
         self.font = pygame.font.Font(None, 36)
@@ -22,14 +24,21 @@ class Game:
         self.did_animation = False
         self.animate_cp = False
         self.cp = -1
-
+        self.done_cp = []
+        self.over = False
+        self.setup_map()
     def setup_map(self):
+        self.level_completed = False
         self.all_sprites = AllSprites()
         self.color_sprites = pygame.sprite.Group()
         self.collision_sprites = pygame.sprite.Group()
         self.number_of_stars = 0
         self.checkpoints = []
-        mapy = ["assets/levely/MAPA_LVL_1.csv"]
+        self.did_animation = False
+        self.stop = -1
+        self.done_cp = []
+
+        mapy = ["assets/levely/MAPA_LVL_1.csv","assets/levely/MAPA_LVL_2.csv","assets/levely/MAPA_LVL_3.csv"]
         with open(mapy[self.lvl], mode='r') as file:
             csv_reader = csv.reader(file)
             map = []
@@ -52,7 +61,8 @@ class Game:
                 elif (map[i][j] == 'g'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/green.png", self.all_sprites,"green")
                 elif (map[i][j] == 's'):
-                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_4.png", self.all_sprites,"yellow")
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_5.png", self.all_sprites, "white")
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/star_0.png", self.all_sprites,"yellow")
                     self.number_of_stars +=1
                 elif (map[i][j] == 'p'):
                     ppos = (j * TILE_SIZE, i * TILE_SIZE)
@@ -60,13 +70,13 @@ class Game:
                 elif (map[i][j] == 'd'):
                     self.door = Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/dvere/dvere_0.png", self.all_sprites, "closed")
                 elif (map[i][j] == '2'):
-                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spikes/pichlac_0.png", self.all_sprites, "spikeUPnon")
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spikes/pichlac_2.png", self.all_sprites, "spikeUPnon")
                 elif (map[i][j] == '4'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spikes/pichlac_1.png", self.all_sprites, "spikeLEFTnon")
                 elif (map[i][j] == '6'):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spikes/pichlac_3.png", self.all_sprites, "spikeRIGHTnon")
                 elif (map[i][j] == '8'):
-                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spikes/pichlac_2.png", self.all_sprites, "spikeDOWNnon")
+                    Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/spikes/pichlac_0.png", self.all_sprites, "spikeDOWNnon")
                 elif (map[i][j] == "c"):
                     Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/farby/sprite_5.png", self.all_sprites, "white")
                     self.checkpoints.append(Sprite((j * TILE_SIZE, i * TILE_SIZE), "assets/checkpoint/checkpoint_0.png", self.all_sprites, "checkpoint"))
@@ -122,18 +132,20 @@ class Game:
 
 
     def do_the_text_and_stuff(self):
-        text_surface = self.font.render("Deaths this Level: " + self.player.deaths.__str__(), True, (255, 255, 255))
-        text_rect = text_surface.get_rect(topleft=(10, 10))  # Position in top-left corner
+        text_surface = self.font.render("Deaths this Level: " + self.player.deaths.__str__(), True, (128, 128, 128))
+        text_rect = text_surface.get_rect(topleft=(10, 10))
         text_surface2 = self.font.render("Deaths all Levels: " + (self.all_deaths + self.player.deaths).__str__(), True,
-                                         (255, 255, 255))
-        text_rect2 = text_surface.get_rect(topleft=(10, 46))  # Position in top-left corner
+                                         (128, 128, 128))
+        text_rect2 = text_surface2.get_rect(topleft=(10, 46))
         star_surface = self.font.render(
             "Stars: " + self.player.collected_stars.__str__() + " / " + self.number_of_stars.__str__(), True,
-            (255, 255, 255))
+            (128, 128, 128))
         star_rect = text_surface.get_rect(topright=(WINDOW_WIDTH - 10, 10))
-        image_surface = pygame.image.load("assets/HINT.png").convert_alpha()
-        image_rect = image_surface.get_rect(topleft=(46, 10))
-        # Draw text
+        image_surface = pygame.image.load("assets/rgb_0.png").convert_alpha()
+        image_surface = pygame.transform.scale(image_surface, (150, 150))
+
+        image_rect = image_surface.get_rect(topleft=(10, 200))
+
         self.display_surface.blit(text_surface, text_rect)
         self.display_surface.blit(text_surface2, text_rect2)
         self.display_surface.blit(star_surface, star_rect)
@@ -142,14 +154,12 @@ class Game:
     def animate_checkpoint(self,delta,cp):
         self.stop -= delta * 1000
         if (self.stop < 500):
-
             self.animate_cp = False
             self.checkpoints[cp].image = pygame.image.load("assets/checkpoint/checkpoint_3.png")
+            self.stop = -1
         elif (self.stop < 1000):
-
             self.checkpoints[cp].image = pygame.image.load("assets/checkpoint/checkpoint_2.png")
         elif (self.stop < 1500):
-
             self.checkpoints[cp].image = pygame.image.load("assets/checkpoint/checkpoint_1.png")
 
 
@@ -159,23 +169,28 @@ class Game:
             for event in pygame.event.get():
                 if event.type == pygame.QUIT:
                     self.running = False
-
-            self.display_surface.fill('black')
-            if(self.player.controls):
-                self.all_sprites.draw(self.player.rect.center)
-                self.all_sprites.update(delta)
+            if(self.over):
+                pass
             else:
-                self.animate_all_door(delta)
-            self.do_the_text_and_stuff()
+
+                self.display_surface.fill('black')
+                if(self.player.controls):
+                    self.all_sprites.draw(self.player.rect.center)
+                    self.all_sprites.update(delta)
+                else:
+                    self.animate_all_door(delta)
+                self.do_the_text_and_stuff()
 
             if(self.player_start_pos != self.player.star_pos):
                 self.player_start_pos = self.player.star_pos
                 for i in range(len(self.checkpoints)):
-                    if(self.checkpoints[i].rect.topleft == self.player_start_pos):
+                    if(self.checkpoints[i].rect.topleft == self.player_start_pos and self.checkpoints[i].color != "done"):
                         self.stop = 2000
                         self.cp = i
                         self.animate_cp = True
+                        self.checkpoints[i].color = "done"
                         self.animate_checkpoint(delta,self.cp)
+                        self.done_cp.append(self.checkpoints[i])
             if(self.animate_cp):
                 self.animate_checkpoint(delta, self.cp)
 
@@ -183,17 +198,34 @@ class Game:
 
             pygame.display.update()
 
-            # self.clock.tick(60)
+
             if(self.player.collected_stars == self.number_of_stars and not self.did_animation):
                 self.door.color = "open"
                 self.player.controls = False
                 self.stop = 5000
                 self.did_animation = True
 
+            if(not self.level_completed):
+                self.end_level()
 
-            self.end_level()
+
         pygame.quit()
         sys.exit()
+
+    def die_ende(self):
+
+        self.display_surface.fill('white')
+        self.background_image = pygame.image.load("assets/rgb_0.png")
+        self.background_image = pygame.transform.scale(self.background_image, (WINDOW_WIDTH, WINDOW_HEIGHT))
+        self.display_surface.blit(self.background_image, (0, 0))
+        sss = ("Thanks for playing ExcelEscape\n"
+               "Created by :Marek Bakay\n"
+               "\n\n\n"
+               "Deaths all Levels: ")
+        text_surface2 = self.font.render(sss + (self.all_deaths + self.player.deaths).__str__(), True,
+                                         (0, 0, 0))
+        text_rect2 = text_surface2.get_rect(center=(WINDOW_WIDTH/2, WINDOW_HEIGHT/2))
+        self.display_surface.blit(text_surface2, text_rect2)
 
 
 
@@ -201,10 +233,17 @@ class Game:
         for sprite in self.all_sprites:
             if(sprite.rect.colliderect(self.player.hitbox_rect) and sprite != self.player):
                 if(sprite.color == "open"):
+                    self.level_completed = True
                     self.lvl+=1
                     self.all_deaths += self.player.deaths
-                    self.did_animation = False
-                    self.setup_map()
+
+
+                    if(self.lvl == 3):
+                        self.over = True
+                        self.die_ende()
+                    else:
+
+                        self.setup_map()
 
 
 
