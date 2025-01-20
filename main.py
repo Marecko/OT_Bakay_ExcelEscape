@@ -15,7 +15,9 @@ class Game:
         self.clock = pygame.time.Clock()
         self.running = True
         self.lvl = 0
-
+        self.music = pygame.mixer.Sound("assets/music/Rymdreglage - Insert Coin.mp3")
+        self.music.set_volume(0.05)
+        self.music.play(loops=-1)
 
         self.stop = -1
         self.help = 0
