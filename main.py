@@ -24,6 +24,7 @@ class Game:
         self.font = pygame.font.Font(None, 36)
         self.all_deaths = 0
         self.did_animation = False
+        self.started_death = False
         self.animate_cp = False
         self.cp = -1
         self.done_cp = []
@@ -40,7 +41,7 @@ class Game:
         self.stop = -1
         self.done_cp = []
 
-        mapy = ["assets/levely/MAPA_LVL_1.csv","assets/levely/MAPA_LVL_2.csv","assets/levely/MAPA_LVL_3.csv"]
+        mapy = ["assets/levely/MAPA_LVL_1.csv","assets/levely/MAPA_LVL_2.csv","assets/levely/MAPA_LVL_3.csv","assets/levely/MAPA_LVL_4.csv"]
         with open(mapy[self.lvl], mode='r') as file:
             csv_reader = csv.reader(file)
             map = []
@@ -110,6 +111,7 @@ class Game:
 
         if (self.stop < 0):
             self.player.controls = True
+
     def animate_door(self):
         self.all_sprites.draw(self.door.rect.center)
         if(self.stop < 2100):
@@ -123,14 +125,37 @@ class Game:
 
 
     def animate_door_movement(self,delta):
+
         pos_x = self.door.rect.x - ((self.door.rect.x - self.player.rect.x) * (self.help  / 2000))
         pos_y = self.door.rect.y - ((self.door.rect.y - self.player.rect.y) * (self.help  / 2000))
         self.all_sprites.draw((pos_x, pos_y))
 
     def animate_door_movement_back(self,delta):
+
         pos_x = self.door.rect.x - ((self.door.rect.x - self.player.rect.x) * (1-self.help / 2000))
         pos_y = self.door.rect.y - ((self.door.rect.y - self.player.rect.y) * (1-self.help / 2000))
         self.all_sprites.draw((pos_x, pos_y))
+
+
+
+    def animate_death(self,delta):
+        self.stop -= delta * 1000
+        self.animate_death_move(delta)
+        if self.stop <= 0:
+            self.player.hitbox_rect.topleft = self.player.star_pos
+            self.player.controls = True
+            self.player.dead = False
+            self.started_death = False
+
+    def animate_death_move(self, delta):
+
+
+        pos_x = self.an_x - ((self.an_x - self.player.star_pos[0]) * (1-self.stop/1000))
+        pos_y = self.an_y - ((self.an_y - self.player.star_pos[1]) * (1-self.stop/1000))
+        self.all_sprites.draw((pos_x, pos_y))
+        self.player.hitbox_rect.x = pos_x
+        self.player.hitbox_rect.y = pos_y
+
 
 
     def do_the_text_and_stuff(self):
@@ -180,7 +205,14 @@ class Game:
                     self.all_sprites.draw(self.player.rect.center)
                     self.all_sprites.update(delta)
                 else:
-                    self.animate_all_door(delta)
+                    if(self.started_death):
+
+                        self.animate_death(delta)
+                    else:
+
+                        self.animate_all_door(delta)
+
+
                 self.do_the_text_and_stuff()
 
             if(self.player_start_pos != self.player.star_pos):
@@ -206,6 +238,14 @@ class Game:
                 self.player.controls = False
                 self.stop = 5000
                 self.did_animation = True
+            if(self.player.dead and not self.started_death):
+                self.player.controls = False
+                self.stop = 1000
+                self.an_x = self.player.rect.x
+                self.an_y = self.player.rect.y
+                self.started_death = True
+
+
 
             if(not self.level_completed):
                 self.end_level()
@@ -240,7 +280,7 @@ class Game:
                     self.all_deaths += self.player.deaths
 
 
-                    if(self.lvl == 3):
+                    if(self.lvl == 4):
                         self.over = True
                         self.die_ende()
                     else:
